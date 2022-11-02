@@ -9,12 +9,12 @@ router.get("/", (req, res) => {
   res.send("ok");
 });
 
-//Get all users
+//Get all products
 router.get('/all', (req, res) => {
-  User.find({}).then((users) => {
-    res.send(users);
+  Product.find({}).then((product) => {
+    res.send(product);
   }).catch((error) => {
-    res.status(500).send(error);
+    res.status(400).send(error);
   })
 });
 
