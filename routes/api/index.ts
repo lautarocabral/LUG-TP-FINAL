@@ -2,13 +2,15 @@ import { Router } from "express";
 import blogRoutes from "./blogs";
 import userRoutes from "./users";
 import newsRoutes from "./news";
+import cartsRoutes from "./carts";
+import productsRoutes from "./products";
 
 const router = Router();
-// todas las rutas que lleguen a /api/blogs, ejecutaran lo que se exporto de blogRoutes
 router.use("/blogs", blogRoutes);
 router.use("/users", userRoutes);
 router.use("/news", newsRoutes);
+router.use("/carts", cartsRoutes);
+router.use("/products", productsRoutes);
 
-// se pueden agregar todas las rutas que se necesiten, estaran dentro de /api
 
 export default router;
