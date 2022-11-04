@@ -65,10 +65,12 @@ export const cartController = {
                         // valido si fue agregado
                         if (existantProduct === undefined) {
                             // no fue agregado
+                            // entonces lo creo con los datos que envie desde postman, y lo pusheo a la lista de detalles
                             const newProduct = {
                                 "product": req.body.productId,
                                 "quantity": 1
                             }
+                            //aca hago el push
                             cart.details.push(newProduct);
                         } else {
                             // fue agregado, por lo tanto le incremento la cantidad por 1
