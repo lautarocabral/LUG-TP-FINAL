@@ -1,28 +1,12 @@
 import { Router } from "express";
-import mongoose from "mongoose";
-import Product from "../../../models/product";
-
+import { productController } from '../../../controllers/product';
 
 const router = Router();
-router.get("/", (req, res) => {
-  res.send("ok");
-});
 
-//Get all products
-router.get('/all', (req, res) => {
-  Product.find({}).then((product) => {
-    res.send(product);
-  }).catch((error) => {
-    res.status(400).send(error);
-  })
-});
+router.post("/add", productController.add);
 
-//Post product
-router.post('/add', (req, res) => {
-  Product.create(req.body).then((product) => {
-    res.status(201).send(product);
-  }).catch((error) => {
-    res.status(400).send(error);
-  })
-})
+router.get("/getAll", productController.getAll);
+
+router.delete("/delete", productController.delete);
+
 export default router;
