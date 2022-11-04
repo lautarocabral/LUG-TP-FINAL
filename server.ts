@@ -4,7 +4,6 @@ dotenv.config();
 
 import express, { Express } from "express";
 import mongoose from "mongoose";
-import Blog from "./models/blogs";
 import apiRoutes from "./routes/api";
 
 // inicializa la clase que nos permite crear el servidor.
