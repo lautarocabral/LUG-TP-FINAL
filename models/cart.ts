@@ -7,6 +7,7 @@ const cartSchema = new Schema({
             quantity: { type: Number, default: 0 },
         }
     ],
+    total: { type: Number, default: 0 },
 });
 
 const Cart = model("Cart", cartSchema);

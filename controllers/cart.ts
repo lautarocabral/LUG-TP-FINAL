@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { get } from "http";
+import { resolve } from "path";
 import Cart from "../models/cart";
 import Product from "../models/product"
 
@@ -10,7 +11,7 @@ export const cartController = {
     add: async (req: Request, res: Response) => {
 
         const newCart = new Cart({ ...req.body })
-        newCart.save()
+        await newCart.save()
             .then((cart) => {
                 if (!cart) {
                     return res.status(404).send()
@@ -24,19 +25,22 @@ export const cartController = {
     // get un solo carrito
     get: async (req: Request, res: Response) => {
 
-        Cart.find({ _id: req.params.idCart }).populate('details.product').then((cart) => {
-            // cart una lista que va a contener el cart que se encontro con el find. 
-            // si no encuentra nada, va a devolver una lista vacia
-            res.send(cart)
-        }).catch((err) => {
-            res.status(500).send(err)
-        })
+        await cartController.updateTotal();
+
+        Cart.findOne({ _id: req.params.idCart })
+            .populate('details.product')
+            .then(async (cart) => {
+                // cart es un objeto porque hace el findOne
+                res.send(cart);
+            }).catch((err) => {
+                res.status(500).send(err)
+            })
     },
 
     // get lista de todos los carritos
     getAll: async (req: Request, res: Response) => {
 
-        Cart.find({}).populate('details.product').then((cart) => {
+        Cart.find({}).populate('details.product').then(async (cart) => {
             // Al hacer un find({}) pasandole un objeto vacio,trae toda la lista de carts
             res.send(cart)
         }).catch((err) => {
@@ -77,13 +81,16 @@ export const cartController = {
                             existantProduct.quantity++;
                         }
                         // guardo cart
-                        cart.save();
+                        await cart.save();
 
                         //modifico el stock del producto
                         productObj.stock--;
 
                         //guardo producto
-                        productObj.save();
+                        await productObj.save();
+
+                        //calculo el total y hago update
+                        await cartController.updateTotal();
 
                         res.send(cart);
 
@@ -129,7 +136,7 @@ export const cartController = {
                             existantProduct.quantity--;
                         }
                         // guardo cart
-                        cart.save();
+                        await cart.save();
 
                         // busco el producto que se elimino del cart ya sea el producto entero o 1 sola unidad de cantidad
                         // y actualizo en la "tabla" productos su stock. Le agrego 1 unidad al stock
@@ -137,9 +144,13 @@ export const cartController = {
                         // verifico que el prod no sea undefined y le agrego 1 unidad al mismo
                         if (productObj != undefined) {
                             productObj.stock++;
-                            productObj?.save();
+                            await productObj?.save();
                         }
                     }
+
+                    //calculo el total y hago update
+                    await cartController.updateTotal();
+
                     res.send(cart);
                 }
 
@@ -147,5 +158,23 @@ export const cartController = {
                 res.status(500).send(err)
             })
     },
+
+    async updateTotal() {
+        Cart.find({}).populate('details.product').then(async (carts) => {
+            carts.forEach(async cart => {
+                // hago un foreach de cada carrito, despues un foreach de cada detalle de cada carrito
+                // y voy acumulando el total
+                let total = 0;
+                cart.details.forEach(detail => {
+                    // tsignore para que no me tire el erro de que price es undefined
+                    // @ts-ignore: Object is possibly 'null'.
+                    total = total + detail.product?.price * detail.quantity;
+                });
+                cart.total = total;
+                //guardo el total y actualiza la bd
+                await cart.save();
+            })
+        })
+    }
 
 };
