@@ -23,8 +23,6 @@ export const cartController = {
 
     get: async (req: Request, res: Response) => {
 
-        await cartController.updateTotal();
-
         Cart.findOne({ _id: req.params.idCart })
             .populate('details.product')
             .then(async (cart) => {
@@ -109,8 +107,8 @@ export const cartController = {
                         await cart.save();
 
                         var productObj = await Product.findById(req.body.productId);
-                        if (productObj != undefined) {
-                            productObj.stock++;
+                        if (productObj !== undefined) {
+                            productObj!.stock++;
                             await productObj?.save();
                         }
                     }
